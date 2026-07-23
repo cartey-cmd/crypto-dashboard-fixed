@@ -21,10 +21,10 @@ export default function PriceChart() {
 
   const { data, error, isLoading } = useChart(timeframe);
 
-  // Domain Y-axis dengan sedikit padding di atas/bawah supaya garis harga
-  // tidak menempel di tepi chart (dataMin/dataMax mentah bikin chart
-  // terlihat "kepotong").
-  const prices = data.map((d) => d.price).filter((p) => Number.isFinite(p));
+  const prices = data
+    .map((d) => d.price)
+    .filter((p) => Number.isFinite(p));
+
   const minPrice = prices.length ? Math.min(...prices) : 0;
   const maxPrice = prices.length ? Math.max(...prices) : 0;
   const pad = (maxPrice - minPrice) * 0.1 || maxPrice * 0.05 || 1;
@@ -79,7 +79,10 @@ export default function PriceChart() {
       {!isLoading && !error && data.length > 0 && (
         <div className="flex-1 min-h-[280px] sm:min-h-[360px] -ml-2">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <AreaChart
+              data={data}
+              margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="priceFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#ff7b00" stopOpacity={0.45} />
@@ -87,7 +90,11 @@ export default function PriceChart() {
                 </linearGradient>
               </defs>
 
-              <CartesianGrid stroke="#262626" strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid
+                stroke="#262626"
+                strokeDasharray="3 3"
+                vertical={false}
+              />
 
               <XAxis
                 dataKey="time"
@@ -105,7 +112,7 @@ export default function PriceChart() {
                 axisLine={false}
                 width={78}
                 domain={[minPrice - pad, maxPrice + pad]}
-                tickFormatter={(v: number) => formatPrice(v)}
+                tickFormatter={(v) => formatPrice(Number(v ?? 0))}
               />
 
               <Tooltip
@@ -116,7 +123,10 @@ export default function PriceChart() {
                   fontSize: 12,
                 }}
                 labelStyle={{ color: "#a1a1aa" }}
-                formatter={(v: number) => [formatPrice(v), "Price"]}
+                formatter={(value) => [
+                  formatPrice(Number(value ?? 0)),
+                  "Price",
+                ]}
               />
 
               <Area
