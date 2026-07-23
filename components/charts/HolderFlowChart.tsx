@@ -21,9 +21,6 @@ export default function HolderFlowChart() {
   const [timeframe, setTimeframe] = useState("1H");
   const { data, error, isLoading } = useHolderFlow(timeframe);
 
-  // The "sellers" bar is drawn as a negative value so it drops below
-  // the 0 axis (diverging bar chart) -- the underlying data (wallet
-  // count) stays positive, it's just flipped for visual purposes.
   const chartData = useMemo(
     () => data.map((d) => ({ ...d, sellersNeg: -d.sellers })),
     [data]
@@ -46,9 +43,11 @@ export default function HolderFlowChart() {
     >
       <div className="flex flex-wrap justify-between items-center gap-3 mb-5">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-white">Holder Flow</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-white">
+            Holder Flow
+          </h2>
           <p className="text-zinc-500 text-xs sm:text-sm mt-0.5">
-            Buyer vs seller wallets per period &middot; on-chain data via Helius
+            Buyer vs seller wallets per period · on-chain data via Helius
           </p>
         </div>
 
@@ -78,7 +77,9 @@ export default function HolderFlowChart() {
 
         {!isLoading && error && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#171717]">
-            <p className="text-sm text-red-400 px-4 text-center">{String(error)}</p>
+            <p className="text-sm text-red-400 px-4 text-center">
+              {String(error)}
+            </p>
           </div>
         )}
 
@@ -91,8 +92,15 @@ export default function HolderFlowChart() {
         {!isLoading && !error && chartData.length > 0 && (
           <div className="h-[300px] sm:h-[420px] p-2">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid stroke="#262626" strokeDasharray="3 3" vertical={false} />
+              <ComposedChart
+                data={chartData}
+                margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid
+                  stroke="#262626"
+                  strokeDasharray="3 3"
+                  vertical={false}
+                />
 
                 <XAxis
                   dataKey="time"
@@ -122,10 +130,18 @@ export default function HolderFlowChart() {
                     fontSize: 12,
                   }}
                   labelStyle={{ color: "#a1a1aa" }}
-                  formatter={(value: number, name: string, item: any) => {
-                    if (name === "Buyers") return [`${value} wallet`, "Buyers"];
-                    if (name === "Sellers") return [`${Math.abs(value)} wallet`, "Sellers"];
-                    return [value, name];
+                  formatter={(value, name) => {
+                    const num = Number(value ?? 0);
+
+                    if (name === "Buyers") {
+                      return [`${num} wallet`, "Buyers"];
+                    }
+
+                    if (name === "Sellers") {
+                      return [`${Math.abs(num)} wallet`, "Sellers"];
+                    }
+
+                    return [String(value ?? ""), String(name)];
                   }}
                 />
 
@@ -136,8 +152,22 @@ export default function HolderFlowChart() {
                   )}
                 />
 
-                <Bar dataKey="buyers" name="Buyers" fill="#22c55e" radius={[3, 3, 0, 0]} maxBarSize={28} />
-                <Bar dataKey="sellersNeg" name="Sellers" fill="#ef4444" radius={[0, 0, 3, 3]} maxBarSize={28} />
+                <Bar
+                  dataKey="buyers"
+                  name="Buyers"
+                  fill="#22c55e"
+                  radius={[3, 3, 0, 0]}
+                  maxBarSize={28}
+                />
+
+                <Bar
+                  dataKey="sellersNeg"
+                  name="Sellers"
+                  fill="#ef4444"
+                  radius={[0, 0, 3, 3]}
+                  maxBarSize={28}
+                />
+
                 <Line
                   type="monotone"
                   dataKey="netHolders"
@@ -154,9 +184,10 @@ export default function HolderFlowChart() {
 
       <div className="mt-4 flex flex-wrap justify-between gap-2 text-zinc-500 text-xs sm:text-sm">
         <span>
-          Green = buyer wallets ({totals.buyers}) &middot; Red = seller wallets ({totals.sellers})
+          Green = buyer wallets ({totals.buyers}) · Red = seller wallets (
+          {totals.sellers})
         </span>
-        <span>Orange line = net holder flow (buyers &minus; sellers)</span>
+        <span>Orange line = net holder flow (buyers − sellers)</span>
       </div>
     </div>
   );
